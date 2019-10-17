@@ -1,3 +1,4 @@
+
 // Select the Elements
 clear = document.querySelector(".clear");
 dateElement = document.getElementById("date");
@@ -10,23 +11,23 @@ UNCHECK = "fa-circle-thin";
 LINE_THROUGH = "lineThrough";
 
 // get item from localstorage
-data = localStorage.getItem("TODO");
+// data = localStorage.getItem("TODO");
+$.get("http://localhost:3000/tasks", function(data, status){
+    if(data){
+        LIST = data;
+        id = LIST.length; 
+        loadList(LIST); 
+    }else{
+        LIST = [];
+        id = 0;
+    }
+  });
 
 // check if data is not empty
-if(data){
-    LIST = JSON.parse(data);
-    id = LIST.length; 
-    loadList(LIST); 
-}else{
-    // if data isn't empty
-    LIST = [];
-    id = 0;
-}
-
 // load items to the user's interface
 function loadList(array){
     array.forEach(function(item){
-        addToDo(item.name, item.id, item.done, item.trash);
+        addToDo(item.name, item._id, item.status[0]);
     });
 }
 
@@ -44,10 +45,14 @@ dateElement.innerHTML = today.toLocaleDateString("en-US", options);
 
 // add to do function
 
-function addToDo(toDo, id, done, trash){
-    
-    if(trash){ return; }
-    
+function addToDo(toDo, id, status){
+    // if(trash){ return; }
+  if(status == 'pending') {
+     done = false;
+  }
+  else {
+     done = true;
+  }
 DONE = done ? CHECK : UNCHECK;
 LINE = done ? LINE_THROUGH : "";
 item = `<li class="item">
@@ -59,6 +64,12 @@ item = `<li class="item">
      position = "beforeend";
     
     list.insertAdjacentHTML(position, item);
+    $.post("http://localhost:3000/tasks",
+    {
+      name: toDo,
+    },
+    function(data, status){
+    });
 }
 
 // add an item to the list user the enter key
